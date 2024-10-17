@@ -1,0 +1,20 @@
+name: Setup Eigenbot CLI
+runs:
+  using: composite
+  steps:
+    - name: Get Release Tag
+      id: release
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        export EIGENBOT_CLI_TAG=$(gh release view --repo eigenbot-app/cli-releases --json tagName | jq -r '.tagName')
+        echo "Eigenbot CLI Tag: $EIGENBOT_CLI_TAG"
+        echo "tag=$EIGENBOT_CLI_TAG" >> "$GITHUB_OUTPUT"
+    - name: Download Release
+      shell: bash
+      run: |
+        wget \
+          -qO /usr/local/bin/eigenbot \
+          https://github.com/eigenbot-app/cli-releases/releases/download/${{ steps.release.outputs.tag }}/eigenbot-${{ steps.release.outputs.tag }}-linux-amd64 && \
+        chmod +x /usr/local/bin/eigenbot
